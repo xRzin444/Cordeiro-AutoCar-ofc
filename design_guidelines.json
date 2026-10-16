@@ -1,0 +1,198 @@
+{
+  "app_name": "Cordeiro AutoCar",
+  "personality": "7 Dark-First Utility DARK",
+  "personality_one_liner": "A high-performance, command-center aesthetic with deep obsidian surfaces, aggressive red accents, and high-impact condensed typography tailored for automotive workshop efficiency.",
+  "color": {
+    "surface": "#050505",
+    "onSurface": "#FFFFFF",
+    "surfaceSecondary": "#1A1A1A",
+    "onSurfaceSecondary": "#FFFFFF",
+    "surfaceTertiary": "#2C2C2C",
+    "onSurfaceTertiary": "#FFFFFF",
+    "surfaceInverse": "#FFFFFF",
+    "onSurfaceInverse": "#000000",
+    "brand": "#E53935",
+    "onBrand": "#FFFFFF",
+    "brandPrimary": "#D32F2F",
+    "onBrandPrimary": "#FFFFFF",
+    "brandSecondary": "#B71C1C",
+    "onBrandSecondary": "#FFFFFF",
+    "brandTertiary": "#3E1818",
+    "onBrandTertiary": "#FFCDD2",
+    "success": "#4CAF50",
+    "onSuccess": "#FFFFFF",
+    "warning": "#FFC107",
+    "onWarning": "#000000",
+    "error": "#F44336",
+    "onError": "#FFFFFF",
+    "info": "#2196F3",
+    "onInfo": "#FFFFFF",
+    "border": "#333333",
+    "borderStrong": "#4A4A4A",
+    "divider": "#222222",
+    "muted": "#9E9E9E",
+    "statusOrcamento": "#FF9800",
+    "statusEmExecucao": "#2196F3",
+    "statusConcluida": "#4CAF50",
+    "statusCancelada": "#F44336",
+    "statusAguardando": "#9E9E9E",
+    "statusEntregue": "#8BC34A"
+  },
+  "typography": {
+    "displayFontFamily": "Barlow Condensed",
+    "textFontFamily": "Inter",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Use an 8pt grid system. Keep vertical rhythms tight in data cards but comfortable for touch targets (min 44pt). Maintain generous safe-area margins.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": 0,
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": false,
+    "do's": [],
+    "dont's": [
+      "Do not use glassmorphism. This is a dark-first utility app for automotive workflows. Solid dark surfaces are required for high contrast and readability in shop floor conditions."
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Login",
+      "purpose": "Secure entry point showcasing the brand identity and aesthetic.",
+      "states": {
+        "loading": "Dark screen with red spinning indicator",
+        "empty": "N/A",
+        "error": "Inline text below inputs"
+      },
+      "layout": "Full-bleed dark automotive background with a top-to-bottom gradient scrim. Form sits at the bottom 40%. Large primary CTA button."
+    },
+    {
+      "name": "Dashboard (Início)",
+      "purpose": "Provide a high-level overview of workshop performance, financial KPIs, and active OS.",
+      "states": {
+        "loading": "Skeleton cards with subtle pulse on surfaceSecondary",
+        "empty": "No data yet illustration, welcoming new manager",
+        "error": "Error card with retry button"
+      },
+      "layout": "Header with user greeting. Grid of KPI cards (2-col layout) showing Receitas, Despesas, OS ativas. Below, a horizontal scrolling list of 'Próximas Garantias a Vencer'. Followed by a vertical list of 'OS em Execução'."
+    },
+    {
+      "name": "Clientes",
+      "purpose": "Manage customer database with quick search and vehicle association.",
+      "states": {
+        "loading": "Skeleton list items",
+        "empty": "Illustration: No clients found + 'Adicionar Cliente' CTA",
+        "error": "Error message with retry action"
+      },
+      "layout": "Sticky search bar at top. Vertical list of clients showing name, phone, and number of vehicles. FAB for adding new client at bottom right."
+    },
+    {
+      "name": "Veículos",
+      "purpose": "Track vehicles linked to clients, including specs and history.",
+      "states": {
+        "loading": "Skeleton list items",
+        "empty": "Illustration: No vehicles + 'Adicionar Veículo' CTA",
+        "error": "Error message with retry action"
+      },
+      "layout": "Filter chip row at top (Marca, Ano). Vertical list of vehicle cards showing plate, model, and client name. Each card navigates to vehicle details and service history."
+    },
+    {
+      "name": "Ordens de Serviço (OS)",
+      "purpose": "Core workflow to manage repair jobs, assign mechanics, add parts, and track payments.",
+      "states": {
+        "loading": "Skeleton cards",
+        "empty": "Illustration: No active OS + 'Criar OS' CTA",
+        "error": "Error message with retry action"
+      },
+      "layout": "Segmented control at top for status filters (Abertas, Concluídas, Todas). List of OS cards with high-contrast status chips (Orçamento, Execução, etc.), vehicle info, and total value. Sticky FAB to create new OS."
+    },
+    {
+      "name": "Garantias",
+      "purpose": "Track warranty status for services and parts.",
+      "states": {
+        "loading": "Skeleton list items",
+        "empty": "Illustration: No warranties to track",
+        "error": "Error message with retry action"
+      },
+      "layout": "Filter chips for Vigente (Green), Próxima (Yellow), Vencida (Red). List of warranty cards detailing the service, OS reference, and expiration date."
+    },
+    {
+      "name": "Caixa",
+      "purpose": "Financial module tracking entries (receitas) and exits (despesas).",
+      "states": {
+        "loading": "Skeleton list items",
+        "empty": "Illustration: No transactions in this period",
+        "error": "Error message with retry action"
+      },
+      "layout": "Top summary cards for Saldo, Entradas, Saídas. Segmented control for month filtering. List of transactions with green (entries) and red (exits) amounts. Sticky bottom CTA to add transaction."
+    },
+    {
+      "name": "Mais (Mecânicos, Relatórios, Configurações)",
+      "purpose": "Secondary administrative tools and settings.",
+      "states": {
+        "loading": "Skeleton lists",
+        "empty": "N/A",
+        "error": "Error message with retry action"
+      },
+      "layout": "Simple vertical list of navigation rows (Mecânicos, Relatórios, Configurações) with leading tinted icon containers and trailing chevrons."
+    }
+  ],
+  "images": {
+    "login_hero": {
+      "url": "https://images.unsplash.com/photo-1773137149939-8ea2e16d8e02?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTJ8MHwxfHNlYXJjaHwxfHxjYXIlMjBlbmdpbmUlMjBkYXJrJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3OTE3NTA4Mjd8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Ferrari engine close-up with red accents on dark background"
+    },
+    "empty_state_os": {
+      "url": "https://images.unsplash.com/photo-1763076470453-e9cc7528c82b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzOTB8MHwxfHNlYXJjaHwxfHxhdXRvbW90aXZlJTIwbWVjaGFuaWMlMjB0b29scyUyMGRhcmt8ZW58MHx8fHwxNzkxNzUwODI3fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Wrench and automotive tools on dark surface"
+    },
+    "dashboard_kpi_bg": {
+      "url": "https://images.unsplash.com/photo-1517026575980-3e1e2dedeab4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w7NTY2NzZ8MHwxfHNlYXJjaHwxfHxkYXNoYm9hcmQlMjBzcGVlZG9tZXRlciUyMGRhcmt8ZW58MHx8fHwxNzkxNzUwODI3fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Dashboard speedometer gauge in dark aesthetic"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strictly follow the Dark-First Utility DARK guidelines. Use black as the dominant color (#050505) with red accents (#D32F2F) as requested by the user.",
+    "Implement a 4-tab bottom navigation: Início, OS, Caixa, Mais.",
+    "Use Phosphor icons with filled weights for active tabs and regular weights for inactive ones.",
+    "OS status requires strict color coding: Orçamento (Orange), Em Execução (Blue), Concluída (Green), Cancelada (Red), Aguardando (Gray), Entregue (Light Green).",
+    "Garantias status visual indicators: Vigente (Green), Próxima do vencimento (Yellow/Warning), Vencida (Red/Error).",
+    "Avoid unnecessary animations. Keep transitions instant or very fast to suit the professional, operational nature of the app.",
+    "Ensure all forms are divided into logical sections (e.g., Dados do Veículo, Peças, Serviços, Pagamento) to prevent scrolling fatigue.",
+    "Use touch targets of at least 44x44pt. Mechanics use the app in rugged environments, so buttons and list items must be easily tappable.",
+    "Ensure the login screen features the provided `login_hero` image with a top-to-bottom gradient scrim to ensure form readability at the bottom.",
+    "Format currency as 'R$' and dates as 'DD/MM/AAAA' everywhere."
+  ]
+}

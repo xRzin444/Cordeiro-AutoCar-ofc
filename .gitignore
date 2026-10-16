@@ -1,0 +1,56 @@
+# Dependências
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# Segredos e ambiente
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Backups e dumps
+backup/
+*.dump
+*.bson
+*.gz
+
+# Builds
+dist/
+build/
+.expo/
+.metro-cache/
+web-build/
+
+# IDE / SO
+.vscode/
+.idea/
+.gitconfig
+.emergent/
+.DS_Store
+Thumbs.db
+test_result.md
+
+# Logs
+*.log
+logs/
+
+# Testes
+test_reports/
+.coverage
+coverage/
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
+
+# Public templates; keep only placeholders in these files
+!backend/.env.example
+!frontend/.env.example
