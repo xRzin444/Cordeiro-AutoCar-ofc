@@ -7,9 +7,11 @@ para 2 casas decimais no backend.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import re
+import time
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
@@ -19,11 +21,11 @@ from typing import Any, Dict, List, Literal, Optional
 import bcrypt
 import jwt
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 # ---------------------------------------------------------------------------
 # Configuração
@@ -36,9 +38,13 @@ DB_NAME = os.environ["DB_NAME"]
 JWT_SECRET = os.environ["JWT_SECRET"]
 JWT_EXPIRE_MINUTES = int(os.environ.get("JWT_EXPIRE_MINUTES", "480"))
 ADMIN_EMAIL = os.environ["ADMIN_EMAIL"].strip().lower()
-ADMIN_PASSWORD = os.environ["ADMIN_PASSWORD"]
+ADMIN_PIN = os.environ.get("ADMIN_PIN", "")
 JWT_ALG = "HS256"
 JWT_ISSUER = "cordeiro-autocar"
+PIN_MAX_ATTEMPTS = 5
+PIN_LOCKOUT_SECONDS = 15 * 60
+pin_login_attempts: Dict[str, tuple[int, float]] = {}
+pin_login_lock = asyncio.Lock()
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger("cordeiro")
@@ -131,9 +137,8 @@ def _clean_doc(doc: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 # Modelos Pydantic
 # ---------------------------------------------------------------------------
-class LoginIn(BaseModel):
-    email: EmailStr
-    senha: str = Field(min_length=4, max_length=72)
+class PinLoginIn(BaseModel):
+    pin: str = Field(pattern=r"^\d{4}$")
 
 
 class TokenOut(BaseModel):
@@ -345,13 +350,20 @@ async def ensure_indexes():
 
 
 async def seed_admin():
+    if not re.fullmatch(r"\d{4}", ADMIN_PIN):
+        raise RuntimeError("ADMIN_PIN deve ser configurado com exatamente 4 dígitos em backend/.env.")
+
     existing = await db.users.find_one({"email": ADMIN_EMAIL})
     if existing:
+        await db.users.update_one(
+            {"email": ADMIN_EMAIL},
+            {"$set": {"pin_hash": hash_password(ADMIN_PIN)}, "$unset": {"password_hash": ""}},
+        )
         return
     doc = {
         "id": str(uuid.uuid4()),
         "email": ADMIN_EMAIL,
-        "password_hash": hash_password(ADMIN_PASSWORD),
+        "pin_hash": hash_password(ADMIN_PIN),
         "nome": "Administrador",
         "role": "admin",
         "ativo": True,
@@ -410,7 +422,10 @@ async def current_user(creds: Optional[HTTPAuthorizationCredentials] = Depends(s
         )
     except jwt.PyJWTError:
         raise unauthorized
-    user = await db.users.find_one({"id": payload["sub"], "ativo": True}, {"_id": 0, "password_hash": 0})
+    user = await db.users.find_one(
+        {"id": payload["sub"], "ativo": True},
+        {"_id": 0, "password_hash": 0, "pin_hash": 0},
+    )
     if not user:
         raise unauthorized
     return user
@@ -431,11 +446,34 @@ async def root():
 
 # ---------- AUTH ----------
 @api.post("/auth/login", response_model=TokenOut)
-async def login(body: LoginIn):
-    email = body.email.strip().lower()
-    user = await db.users.find_one({"email": email, "ativo": True})
-    if not user or not verify_password(body.senha, user["password_hash"]):
-        raise HTTPException(status_code=401, detail="E-mail ou senha inválidos")
+async def login(body: PinLoginIn, request: Request):
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.monotonic()
+
+    async with pin_login_lock:
+        for ip, (_, expires_at) in list(pin_login_attempts.items()):
+            if expires_at <= now:
+                pin_login_attempts.pop(ip, None)
+
+        attempts, expires_at = pin_login_attempts.get(client_ip, (0, now))
+        if attempts >= PIN_MAX_ATTEMPTS and expires_at > now:
+            retry_after = max(1, int(expires_at - now))
+            raise HTTPException(
+                status_code=429,
+                detail="Muitas tentativas. Aguarde antes de tentar novamente.",
+                headers={"Retry-After": str(retry_after)},
+            )
+
+        user = await db.users.find_one({"email": ADMIN_EMAIL, "ativo": True})
+        if not user or not verify_password(body.pin, user.get("pin_hash", "")):
+            if attempts == 0 or expires_at <= now:
+                pin_login_attempts[client_ip] = (1, now + PIN_LOCKOUT_SECONDS)
+            else:
+                pin_login_attempts[client_ip] = (attempts + 1, expires_at)
+            raise HTTPException(status_code=401, detail="PIN inválido")
+
+        pin_login_attempts.pop(client_ip, None)
+
     payload = {"id": user["id"], "email": user["email"], "role": user.get("role", "admin")}
     return {
         "access_token": make_token(payload),

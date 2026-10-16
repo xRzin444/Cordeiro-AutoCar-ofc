@@ -32,7 +32,8 @@ Variáveis obrigatórias no `.env`:
 - `MONGO_URL` — connection string do MongoDB (local ou Atlas).
 - `DB_NAME` — nome do banco (ex.: `cordeiro_autocar`).
 - `JWT_SECRET` — gere com `python -c "import secrets;print(secrets.token_urlsafe(64))"`.
-- `ADMIN_EMAIL` / `ADMIN_PASSWORD` — usuário admin criado automaticamente no primeiro boot.
+- `ADMIN_EMAIL` — identidade da conta administradora criada automaticamente.
+- `ADMIN_PIN` — PIN privado de 4 dígitos para entrar como administrador. O backend armazena o hash, limita cinco tentativas incorretas por endereço em 15 minutos e bloqueia novas tentativas até a janela expirar. Restrinja a API à rede da oficina; um PIN curto não deve proteger uma API pública.
 - `CORS_ORIGINS` — lista separada por vírgula (`https://app1.com,https://app2.com`). Em produção **nunca use `*`**.
 - `JWT_EXPIRE_MINUTES` — opcional (padrão 480 = 8h).
 
@@ -41,7 +42,7 @@ API escuta em `http://localhost:8000/api`. Docs interativas em `/docs`.
 ### Testes
 
 Os testes de API usam `http://127.0.0.1:8000` por padrão e leem `ADMIN_EMAIL` e
-`ADMIN_PASSWORD` do `backend/.env`. Inicie o backend antes de executá-los. Para
+`ADMIN_PIN` do `backend/.env`. Inicie o backend antes de executá-los. Para
 apontar para outra instância, configure `TEST_API_BASE_URL` localmente.
 
 ```bash
@@ -49,7 +50,8 @@ cd backend
 pytest tests/ -v
 ```
 
-19 testes cobrem login, dedup de CPF e placa, totais da OS, pagamento parcial/total, geração de garantias, caixa com motivo obrigatório, dashboard.
+Os testes cobrem login, deduplicação de CPF e placa, totais da OS, pagamentos,
+garantias, caixa e dashboard.
 
 ---
 
@@ -111,7 +113,7 @@ No Atlas, backups automáticos diários estão disponíveis mesmo no plano gratu
 Lembre-se:
 - Fixe o CORS no backend com o domínio exato do frontend.
 - Use HTTPS em produção (o provedor cuida).
-- Troque `ADMIN_PASSWORD` logo após o primeiro login.
+- Mantenha `ADMIN_PIN` somente na configuração local do backend; não publique a API com PIN de 4 dígitos.
 
 ---
 
@@ -123,7 +125,7 @@ Veja `/app/memory/test_credentials.md`. Trocar antes de operar em produção.
 
 ## 6. Pontos que exigem configuração manual
 
-- Gerar `JWT_SECRET` novo e trocar `ADMIN_PASSWORD` no `.env` de produção.
+- Gerar `JWT_SECRET` novo e configurar `ADMIN_PIN` somente no `.env` privado do backend.
 - Preencher `CORS_ORIGINS` com o domínio real do frontend.
 - Provisionar MongoDB Atlas e atualizar `MONGO_URL`.
 - Criar `manifest.json` + ícones para PWA instalável no iPhone (não incluso).

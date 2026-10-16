@@ -2,10 +2,11 @@
 
 ## Conta administradora
 O usuário administrador é criado automaticamente no primeiro início do backend.
-Configure `ADMIN_EMAIL` e `ADMIN_PASSWORD` no arquivo local `backend/.env`.
-Não publique credenciais nem use senhas de desenvolvimento em produção.
+Configure `ADMIN_EMAIL` e um `ADMIN_PIN` privado de 4 dígitos no arquivo local
+`backend/.env`. Não publique credenciais nem exponha a API fora da rede da oficina.
 
-O seed é idempotente: se o administrador já existir, ele não será recriado.
+No início do backend, o hash do PIN configurado é aplicado à conta administradora
+existente ou criada.
 
 ## Dados de teste criados via curl (podem existir no banco)
 - Cliente: João Teste (CPF 123.456.789-00)

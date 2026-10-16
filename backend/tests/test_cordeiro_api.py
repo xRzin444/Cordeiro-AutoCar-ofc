@@ -10,10 +10,10 @@ load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 BASE = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 API = f"{BASE}/api"
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
-if not ADMIN_EMAIL or not ADMIN_PASSWORD:
-    raise RuntimeError("Defina ADMIN_EMAIL e ADMIN_PASSWORD em backend/.env antes de executar os testes.")
-ADMIN = {"email": ADMIN_EMAIL, "senha": ADMIN_PASSWORD}
+ADMIN_PIN = os.environ.get("ADMIN_PIN")
+if not ADMIN_EMAIL or not ADMIN_PIN:
+    raise RuntimeError("Defina ADMIN_EMAIL e ADMIN_PIN em backend/.env antes de executar os testes.")
+ADMIN = {"pin": ADMIN_PIN}
 
 state = {}
 
@@ -31,8 +31,13 @@ def h(token):
 
 # --- AUTH ---
 def test_login_bad():
-    r = requests.post(f"{API}/auth/login", json={"email":"admin@cordeiro.com.br","senha":"wrong"}, timeout=20)
+    wrong_pin = "0000" if ADMIN_PIN != "0000" else "9999"
+    r = requests.post(f"{API}/auth/login", json={"pin": wrong_pin}, timeout=20)
     assert r.status_code == 401
+
+def test_login_rejects_non_four_digit_pin():
+    r = requests.post(f"{API}/auth/login", json={"pin": "123"}, timeout=20)
+    assert r.status_code == 422
 
 def test_me_no_token():
     r = requests.get(f"{API}/auth/me", timeout=20)

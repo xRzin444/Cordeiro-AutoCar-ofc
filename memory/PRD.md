@@ -11,7 +11,7 @@ moeda R$, data DD/MM/AAAA, timezone America/Sao_Paulo.
 - **Banco:** MongoDB (coleções: users, customers, vehicles, mechanics, work_orders, warranties, cash_transactions, counters). Índices para placa_norm, cpf_cnpj_norm, numero da OS, email de usuário.
 
 ## Autenticação
-- Login e-mail/senha → `POST /api/auth/login` devolve JWT (HS256, 8h).
+- Login por PIN administrativo de 4 dígitos → `POST /api/auth/login` devolve JWT (HS256, 8h), com bloqueio temporário após tentativas incorretas.
 - Admin seed idempotente ao subir backend (ver test_credentials.md).
 - Token guardado em SecureStore (nativo) e AsyncStorage (web).
 
@@ -35,5 +35,5 @@ moeda R$, data DD/MM/AAAA, timezone America/Sao_Paulo.
 
 ## Variáveis de ambiente
 Backend `.env`: `MONGO_URL`, `DB_NAME`, `JWT_SECRET`, `JWT_EXPIRE_MINUTES`,
-`ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+`ADMIN_EMAIL`, `ADMIN_PIN`.
 Frontend `.env`: `EXPO_PUBLIC_BACKEND_URL`.

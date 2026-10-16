@@ -6,7 +6,7 @@
 // React Native uses `testID` (camelCase, no dash), not `data-testid`:
 //   import { LOGIN } from '../constants/testIds';
 //   <TouchableOpacity testID={LOGIN.submitButton} onPress={...} />
-//   <TextInput testID={LOGIN.emailInput} ... />
+//   <TextInput testID={LOGIN.pinInput} ... />
 //
 // Directive:
 //   - Keys are camelCase, values are kebab-case shaped as `<feature>-<element>`
@@ -17,11 +17,8 @@
 // matcher and the lint rule `emergent(kebab-case-testid-prop)`.
 
 export const LOGIN = {
-	emailInput: 'login-email-input',
-	passwordInput: 'login-password-input',
+	pinInput: 'login-pin-input',
 	submitButton: 'login-submit-button',
-	forgotPasswordLink: 'login-forgot-password-link',
-	registerLink: 'login-register-link',
 };
 
 export const REGISTER = {

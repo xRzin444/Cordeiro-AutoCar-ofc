@@ -3,14 +3,22 @@ import { getToken, removeToken, saveToken, saveUser, clearUser } from "../auth/s
 const BASE = process.env.EXPO_PUBLIC_BACKEND_URL ?? "";
 const API = `${BASE}/api`;
 
-export async function login(email: string, senha: string) {
+export async function login(pin: string) {
   const r = await fetch(`${API}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, senha }),
+    body: JSON.stringify({ pin }),
   });
   const data = await r.json();
-  if (!r.ok) throw new Error(data.detail || "Erro ao entrar");
+  if (!r.ok) {
+    const detail = data.detail;
+    const message = typeof detail === "string"
+      ? detail
+      : Array.isArray(detail)
+        ? "Informe um PIN válido de 4 dígitos."
+        : "Não foi possível entrar.";
+    throw new Error(message);
+  }
   await saveToken(data.access_token);
   await saveUser(data.user);
   return data;
